@@ -1,10 +1,10 @@
 from __future__ import division, print_function
 import numpy as np
 
-from .utils import BCTParamError, get_rng
-from .algorithms import get_components
-from .due import due, BibTeX
-from .citations import ZALESKY2010
+from bct.utils import BCTParamError, get_rng
+from bct.algorithms import get_components
+from bct.due import due, BibTeX
+from bct.citations import ZALESKY2010
 
 # FIXME considerable gains could be realized using vectorization, although
 # generating the null distribution will take a while
@@ -165,10 +165,9 @@ def nbs_bct(x, y, thresh, k=1000, tail='both', paired=False, verbose=False, seed
             t_stat[i] = ttest_paired_stat_only(xmat[i, :], ymat[i, :], tail)
         else:
             t_stat[i] = ttest2_stat_only(xmat[i, :], ymat[i, :], tail)
-
+    '''
     # threshold
     ind_t, = np.where(t_stat > thresh)
-
     if len(ind_t) == 0:
         raise BCTParamError("Unsuitable threshold")
 
@@ -260,5 +259,5 @@ def nbs_bct(x, y, thresh, k=1000, tail='both', paired=False, verbose=False, seed
     # calculate p-vals
     for i in range(nr_components):
         pvals[i] = np.size(np.where(null >= sz_links[i])) / k
-
-    return pvals, adj, null, t_stat 
+    '''
+    return t_stat # pvals, adj, null, t_stat 

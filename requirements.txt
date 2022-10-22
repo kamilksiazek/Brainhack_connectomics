@@ -4,3 +4,4 @@ sklearn
 networkx
 gudhi
 pandas
+matplotlib

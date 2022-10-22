@@ -1,0 +1,37 @@
+participant_id	 sex	 age	tumor type & grade	tumor size (cub cm)	tumor location	ventricles
+sub-CON01	M	49	none	0	none	no
+sub-CON02	M	64	none	0	none	no
+sub-CON03	F	53	none	0	none	no
+sub-CON04	F	53	none	0	none	no
+sub-CON05	M	49	none	0	none	no
+sub-CON06	M	72	none	0	none	no
+sub-CON07	F	48	none	0	none	no
+sub-CON08	M	75	none	0	none	no
+sub-CON09	M	58	none	0	none	no
+sub-CON10	M	52	none	0	none	no
+sub-CON11	F	72	none	0	none	no
+sub-PAT01	F	67	Meningioma I	1.69	Frontal	no
+sub-PAT02	F	49	Meningioma I	0.75	Frontal	no
+sub-PAT03	F	60	Meningioma I	78.44	Parietal	yes
+sub-PAT05	F	40	Oligo-astrocytoma II	12.95	Frontal	no
+sub-PAT06	F	67	Meningioma I	12.81	Frontal	yes
+sub-PAT07	M	55	Ependymoma II	33.94	Temporal	yes
+sub-PAT08	M	51	Meningioma I	16.81	Frontal	no
+sub-PAT10	F	77	Meningioma I	0.59	Frontal	no
+sub-PAT11	F	74	Meningioma II	20.73	Frontal	no
+sub-PAT13	F	40	Meningioma I	2.09	Skullbase	no
+sub-PAT14	F	74	Meningioma I	3.45	Parietal	no
+sub-PAT15	F	57	Meningioma I	2.13	Frontal	no
+sub-PAT16	M	39	Anaplastic astrocytoma II-III	50.24	Fronto-temporal	no
+sub-PAT17	F	49	Meningioma I	0.58	Frontal	no
+sub-PAT19	F	44	Meningioma I	2.64	Frontal skullbase	no
+sub-PAT20	F	70	Anaplastic astrocytoma III	15.24	Parietal	no
+sub-PAT22	M	53	Oligodendroglioma II	15.16	Parietal	no
+sub-PAT23	M	74	Meningioma I	89.56	Frontal	yes
+sub-PAT24	M	62	Meningioma I	5.91	Frontal	no
+sub-PAT25	F	46	Glioma II	18.56	Temporal	no
+sub-PAT26	M	61	Anaplastic astrocytoma III	59.21	Temporal	yes
+sub-PAT27	M	38	Astrocytoma II	13.24	Frontal	no
+sub-PAT28	M	44	Oligodendroglioma II	11.49	Frontal	no
+sub-PAT29	M	45	Oligo-astrocytoma III	36.2	Frontal	no
+sub-PAT31	F	31	Oligodendroglioma II	4.24	Frontal	no

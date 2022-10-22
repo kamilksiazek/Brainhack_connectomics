@@ -42,7 +42,7 @@ class Test(Thread):
 
 def prepare_histogram_based_on_t_statistics(matrix, key):
     sns.set_style("whitegrid")
-    plt.hist(matrix, density=True, bins=10)
+    plt.hist(matrix, density=True)
     plt.xlabel('t-statistics')
     plt.ylabel('Probability density')
     plt.xlim(0, 12)

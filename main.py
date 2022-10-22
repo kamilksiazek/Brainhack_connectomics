@@ -1,5 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import seaborn as sns
 from utils.paths import get_subjects
 from utils.graphs import GraphFromCSV, delete_rois
 from threading import Thread, Lock
@@ -37,6 +38,37 @@ class Test(Thread):
         tests[self.test] = [t_test]
         lock.release()
         return 
+
+
+def prepare_histogram_based_on_t_statistics(matrix, key):
+    sns.set_style("whitegrid")
+    plt.hist(matrix, density=True, bins=10)
+    plt.xlabel('t-statistics')
+    plt.ylabel('Probability density')
+    plt.xlim(0, 12)
+    plt.ylim(0, 0.5)
+    for percentile, color in zip([50, 75, 95], ['blue', 'red', 'green']):
+        plt.axvline(x=np.percentile(matrix, percentile),
+                    label=f'{percentile}. percentile',
+                    color=color)
+    key = key.replace(' ', '_')
+    plt.title(key)
+    plt.legend()
+    plt.savefig(f'histogram_{key}.png', dpi=300)
+    plt.close()
+
+
+def calculate_and_plot_percentiles(matrix, key):
+    sns.set_style("whitegrid")
+    key = key.replace(' ', '_')
+    percentiles = np.percentile(matrix, np.arange(1, 100, 1))
+    np.save(f'percentiles_{key}.npy', percentiles)
+    plt.xlabel('Percentile')
+    plt.ylabel('t-statistics')
+    plt.title(key)
+    plt.plot(percentiles)
+    plt.savefig(f'percentiles_{key}.png', dpi=300)
+    plt.close()
 
 
 if __name__ == '__main__':
@@ -85,13 +117,15 @@ if __name__ == '__main__':
 
     procs = []
 
-    experiments = [[stroke_acute_adj, stroke_control_adj, 'stoke_acute vs stroke_control'],
+    experiments = [[stroke_acute_adj, stroke_control_adj, 'stroke_acute vs stroke_control'],
                    [glioma_preop_adj, glioma_control_adj, 'glioma preop vs glioma control'],
                    [stroke_acute_adj, glioma_preop_adj, 'stroke acute vs glioma preop'],
                    [glioma_preop_adj, glioma_postop_adj, 'glioma preop vs glioma postop'],
                    [glioma_postop_adj, glioma_control_adj, 'glioma postop vs glioma control'],
                    [stroke_followup_adj, stroke_control_adj, 'stroke followup vs stroke control'],
-                   [stroke_followup_adj, stroke_acute_adj, 'stroke followup vs stroke acute']]
+                   [stroke_followup_adj, stroke_acute_adj, 'stroke followup vs stroke acute'],
+                   [stroke_followup_2_adj, stroke_control_adj, 'stroke followup2 vs stroke control'],
+                   [stroke_followup_2_adj, stroke_acute_adj, 'stroke followup2 vs stroke acute']]
     for exp in experiments:
         procs.append(Test(x=exp[0], y=exp[1], test=exp[2]))
         procs[-1].start()
@@ -108,11 +142,8 @@ if __name__ == '__main__':
     for key in tests.keys():
         triu_matrix = tests[key][0]
         square_matrix = np.reshape(triu_matrix, (1, triu_matrix.shape[0])) + np.reshape(triu_matrix, (triu_matrix.shape[0], 1))
-        np.save(f'{key}.npy', square_matrix)
-        plt.imshow(square_matrix)
-        plt.colorbar()
-        plt.title(key)
-        plt.savefig(f'{key}.pdf', dpi=300)
-        plt.close()
+        square_matrix = square_matrix.flatten()
+        prepare_histogram_based_on_t_statistics(square_matrix, key)
+        calculate_and_plot_percentiles(square_matrix, key)
 
     # Access tests with the name of the test and filter the t-stat matrix at various levels

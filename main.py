@@ -27,7 +27,7 @@ class Test(Thread):
         self.x = x
         self.y = y
         self.percentile = percentile
-        self.name = name
+        self.name = name.replace(' ', '_')
         self.threshold = self.load_threshold()
 
     def load_threshold(self):
@@ -40,7 +40,8 @@ class Test(Thread):
         p_val, adj_edges, comp = nbs_bct(
             self.x,
             self.y,
-            thresh=self.threshold
+            thresh=self.threshold,
+            verbose=True
         )
         lock.acquire()
         np.savez(f'./Results/{self.name}_{self.percentile}_percentile.npz',
@@ -104,26 +105,26 @@ if __name__ == '__main__':
     glioma_postop_adj = create_tensor_from_multiple_adjacency_graphs(glioma_postop_paths, 'glioma_postop')
     glioma_control_adj = create_tensor_from_multiple_adjacency_graphs(glioma_control_paths, 'glioma_control')
 
-    mods_acute, mods_followp, mods_followp_2 = [], [], []
-    locef_acute, locef_followp, locef_followp_2 = [], [], []
-    gloef_acute, gloef_followp, gloef_followp_2 = [], [], []
-    for i in range(stroke_acute_adj.shape[-1]):
-        G = nx.from_numpy_array(stroke_acute_adj[...,0])
-        communities = nx.algorithms.community.louvain_communities(G)
-        mods_acute.append(nx.algorithms.community.modularity(G, communities))
-    mods_acute = np.array(mods_acute)
-    for i in range(stroke_followup_adj.shape[-1]):
-        G = nx.from_numpy_array(stroke_followup_adj[...,0])
-        communities = nx.algorithms.community.louvain_communities(G)
-        mods_followp.append(nx.algorithms.community.modularity(G, communities))
-    mods_followp = np.array(mods_followp)
-    for i in range(stroke_followup_2_adj.shape[-1]):
-        G = nx.from_numpy_array(stroke_followup_2_adj[...,0])
-        communities = nx.algorithms.community.louvain_communities(G)
-        mods_followp_2.append(nx.algorithms.community.modularity(G, communities))
-    mods_followup_2 = np.array(mods_followp_2)
+    # mods_acute, mods_followp, mods_followp_2 = [], [], []
+    # locef_acute, locef_followp, locef_followp_2 = [], [], []
+    # gloef_acute, gloef_followp, gloef_followp_2 = [], [], []
+    # for i in range(stroke_acute_adj.shape[-1]):
+    #     G = nx.from_numpy_array(stroke_acute_adj[...,0])
+    #     communities = nx.algorithms.community.louvain_communities(G)
+    #     mods_acute.append(nx.algorithms.community.modularity(G, communities))
+    # mods_acute = np.array(mods_acute)
+    # for i in range(stroke_followup_adj.shape[-1]):
+    #     G = nx.from_numpy_array(stroke_followup_adj[...,0])
+    #     communities = nx.algorithms.community.louvain_communities(G)
+    #     mods_followp.append(nx.algorithms.community.modularity(G, communities))
+    # mods_followp = np.array(mods_followp)
+    # for i in range(stroke_followup_2_adj.shape[-1]):
+    #     G = nx.from_numpy_array(stroke_followup_2_adj[...,0])
+    #     communities = nx.algorithms.community.louvain_communities(G)
+    #     mods_followp_2.append(nx.algorithms.community.modularity(G, communities))
+    # mods_followup_2 = np.array(mods_followp_2)
 
-    print(mods_acute, mods_followp, mods_followp_2)
+    # print(mods_acute, mods_followp, mods_followp_2)
     # stroke_followup2_adj = create_tensor_from_multiple_adjacency_graphs(stroke_followup2_paths, 'stroke_followup2')
 
     procs = []
@@ -151,11 +152,11 @@ if __name__ == '__main__':
     
     # Access tests with the name of the test and filter the t-stat matrix at various levels
 
-    for key in tests.keys():
-        triu_matrix = tests[key][0]
-        square_matrix = np.reshape(triu_matrix, (1, triu_matrix.shape[0])) + np.reshape(triu_matrix, (triu_matrix.shape[0], 1))
-        square_matrix = square_matrix.flatten()
-        prepare_histogram_based_on_t_statistics(square_matrix, key)
-        calculate_and_plot_percentiles(square_matrix, key)
+    # for key in tests.keys():
+    #     triu_matrix = tests[key][0]
+    #     square_matrix = np.reshape(triu_matrix, (1, triu_matrix.shape[0])) + np.reshape(triu_matrix, (triu_matrix.shape[0], 1))
+    #     square_matrix = square_matrix.flatten()
+    #     prepare_histogram_based_on_t_statistics(square_matrix, key)
+    #     calculate_and_plot_percentiles(square_matrix, key)
 
     # Access tests with the name of the test and filter the t-stat matrix at various levels

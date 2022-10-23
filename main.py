@@ -1,3 +1,4 @@
+import os
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -21,23 +22,32 @@ def create_tensor_from_multiple_adjacency_graphs(paths, prefix_name):
     return adjacencies
 
 class Test(Thread):
-    def __init__(self, x, y, test):
+    def __init__(self, x, y, name, percentile):
         Thread.__init__(self)
         self.x = x
         self.y = y
-        self.test = test
+        self.percentile = percentile
+        self.name = name
+        self.threshold = self.load_threshold()
+
+    def load_threshold(self):
+        percentiles = np.load(f'./Tables/percentiles_{self.name}.npy')
+        # This table has 99 values: percentiles from 1 to 99.
+        # For instance, 95th percentile is on the 94th position.
+        return percentiles[self.percentile - 1]
 
     def run(self):
-        # p_val, adj_edges, comp, t_test = nbs_bct(
-        t_test = nbs_bct(
+        p_val, adj_edges, comp = nbs_bct(
             self.x,
             self.y,
-            thresh=0.05
+            thresh=self.threshold
         )
         lock.acquire()
-        tests[self.test] = [t_test]
+        np.savez(f'./Results/{self.name}_{self.percentile}_percentile.npz',
+                 p_val, adj_edges, comp)
+        tests[self.name] = [self.percentile, self.threshold, p_val, adj_edges, comp]
         lock.release()
-        return 
+        return
 
 
 def prepare_histogram_based_on_t_statistics(matrix, key):
@@ -74,6 +84,7 @@ def calculate_and_plot_percentiles(matrix, key):
 if __name__ == '__main__':
     files = get_subjects('./Data/')
     tests = {}
+    os.makedirs('./Results/', exist_ok=True)
 
     stroke_acute_paths = [path for path in files if '/Stroke/ses-acute/' in path]
     stroke_control_paths = [path for path in files if '/Stroke/ses-control' in path]
@@ -93,42 +104,76 @@ if __name__ == '__main__':
     glioma_postop_adj = create_tensor_from_multiple_adjacency_graphs(glioma_postop_paths, 'glioma_postop')
     glioma_control_adj = create_tensor_from_multiple_adjacency_graphs(glioma_control_paths, 'glioma_control')
 
+    ######### measures ############
     mods_acute, mods_followp, mods_followp_2 = [], [], []
+    mods_acute_gr, mods_followp_gr, mods_followp_2_gr = [], [], []
     locef_acute, locef_followp, locef_followp_2 = [], [], []
     gloef_acute, gloef_followp, gloef_followp_2 = [], [], []
+    sigma_acute, sigma_followp, sigma_followp_2 = [], [], []
+
+    ######### ses-acute ###########
     for i in range(stroke_acute_adj.shape[-1]):
         G = nx.from_numpy_array(stroke_acute_adj[...,0])
         communities = nx.algorithms.community.louvain_communities(G)
         mods_acute.append(nx.algorithms.community.modularity(G, communities))
+        communities = nx.algorithms.community.greedy_modularity_communities(G)
+        mods_acute_gr.append
+        locef_acute.append(nx.local_efficiency(G))
+        gloef_acute.append(nx.global_efficiency(G))
+        sigma_acute.append(nx.sigma(G))
+    sigma_acute = np.array(sigma_acute)
+    gloef_acute = np.array(gloef_acute)
+    locef_acute = np.array(locef_acute)
     mods_acute = np.array(mods_acute)
+
+    ######### ses-followup ###########
     for i in range(stroke_followup_adj.shape[-1]):
         G = nx.from_numpy_array(stroke_followup_adj[...,0])
         communities = nx.algorithms.community.louvain_communities(G)
         mods_followp.append(nx.algorithms.community.modularity(G, communities))
+        locef_followp.append(nx.local_efficiency(G))  
+        gloef_followp.append(nx.global_efficiency(G))
+        sigma_followp.append(nx.sigma(G))
+    sigma_followp = np.array(sigma_followp)
+    gloef_followp = np.array(gloef_followp)   
+    locef_followp = np.array(locef_followp)   
     mods_followp = np.array(mods_followp)
+
+    ######### ses-followup-2 ###########
     for i in range(stroke_followup_2_adj.shape[-1]):
         G = nx.from_numpy_array(stroke_followup_2_adj[...,0])
         communities = nx.algorithms.community.louvain_communities(G)
         mods_followp_2.append(nx.algorithms.community.modularity(G, communities))
-    mods_followup_2 = np.array(mods_followp_2)
+        locef_followp_2.append(nx.local_efficiency(G))
+        gloef_followp_2.append(nx.global_efficiency(G))
+        sigma_followp_2.append(nx.sigma(G))
+    sigma_followp_2 = np.array(sigma_followp_2)
+    gloef_followp_2 = np.array(gloef_followp_2)
+    locef_followp_2 = np.array(locef_followp_2)
+    mods_followp_2 = np.array(mods_followp_2)
 
-    print(mods_acute, mods_followp, mods_followp_2)
-    # stroke_followup2_adj = create_tensor_from_multiple_adjacency_graphs(stroke_followup2_paths, 'stroke_followup2')
+    import matplotlib.pylab as plt 
+    plt.plot([mods_acute.mean(), mods_followp.mean()/mods_acute.mean(), mods_followp_2.mean()/mods_acute.mean()], 'o', label='modularity')
+    plt.plot([locef_acute.mean(), locef_followp.mean()/locef_acute.mean(), locef_followp_2.mean()/locef_acute.mean()], 'o', label='modularity')
+    plt.plot([gloef_acute.mean(), gloef_followp.mean()/gloef_acute.mean(), gloef_followp_2.mean()/gloef_acute.mean()], 'o', label='modularity')
+    plt.plot([sigma_acute.mean(), sigma_followp.mean()/sigma_acute.mean(), sigma_followp_2.mean()/sigma_acute.mean()], 'o', label='modularity')
+    plt.show()
 
     procs = []
 
     experiments = [[stroke_acute_adj, stroke_control_adj, 'stroke_acute vs stroke_control'],
-                   [glioma_preop_adj, glioma_control_adj, 'glioma preop vs glioma control'],
-                   [stroke_acute_adj, glioma_preop_adj, 'stroke acute vs glioma preop'],
-                   [glioma_preop_adj, glioma_postop_adj, 'glioma preop vs glioma postop'],
-                   [glioma_postop_adj, glioma_control_adj, 'glioma postop vs glioma control'],
+                   #[glioma_preop_adj, glioma_control_adj, 'glioma preop vs glioma control'],
+                   #[stroke_acute_adj, glioma_preop_adj, 'stroke acute vs glioma preop'],
+                   #[glioma_preop_adj, glioma_postop_adj, 'glioma preop vs glioma postop'],
+                   #[glioma_postop_adj, glioma_control_adj, 'glioma postop vs glioma control'],
                    [stroke_followup_adj, stroke_control_adj, 'stroke followup vs stroke control'],
                    [stroke_followup_adj, stroke_acute_adj, 'stroke followup vs stroke acute'],
                    [stroke_followup_2_adj, stroke_control_adj, 'stroke followup2 vs stroke control'],
                    [stroke_followup_2_adj, stroke_acute_adj, 'stroke followup2 vs stroke acute']]
     for exp in experiments:
-        procs.append(Test(x=exp[0], y=exp[1], test=exp[2]))
-        procs[-1].start()
+        for percentile in [50, 75, 95]:
+            procs.append(Test(x=exp[0], y=exp[1], name=exp[2], percentile=percentile))
+            procs[-1].start()
 
     # procs.append(Process(target=run, args=(stroke_acute_adj, stroke_control_adj, 'stoke_acute vs stroke_control')))
     # procs[-1].start()

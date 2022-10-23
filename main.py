@@ -50,29 +50,62 @@ if __name__ == '__main__':
     glioma_control_adj = create_tensor_from_multiple_adjacency_graphs
     (glioma_control_paths, 'glioma_control')
 
+    ######### measures ############
     mods_acute, mods_followp, mods_followp_2 = [], [], []
+    mods_acute_gr, mods_followp_gr, mods_followp_2_gr = [], [], []
     locef_acute, locef_followp, locef_followp_2 = [], [], []
     gloef_acute, gloef_followp, gloef_followp_2 = [], [], []
+    sigma_acute, sigma_followp, sigma_followp_2 = [], [], []
+
+    ######### ses-acute ###########
     for i in range(stroke_acute_adj.shape[-1]):
         G = nx.from_numpy_array(stroke_acute_adj[...,0])
         communities = nx.algorithms.community.louvain_communities(G)
         mods_acute.append(nx.algorithms.community.modularity(G, communities))
+        communities = nx.algorithms.community.greedy_modularity_communities(G)
+        mods_acute_gr.append
+        locef_acute.append(nx.local_efficiency(G))
+        gloef_acute.append(nx.global_efficiency(G))
+        sigma_acute.append(nx.sigma(G))
+    sigma_acute = np.array(sigma_acute)
+    gloef_acute = np.array(gloef_acute)
+    locef_acute = np.array(locef_acute)
     mods_acute = np.array(mods_acute)
+
+    ######### ses-followup ###########
     for i in range(stroke_followup_adj.shape[-1]):
         G = nx.from_numpy_array(stroke_followup_adj[...,0])
         communities = nx.algorithms.community.louvain_communities(G)
         mods_followp.append(nx.algorithms.community.modularity(G, communities))
+        locef_followp.append(nx.local_efficiency(G))  
+        gloef_followp.append(nx.global_efficiency(G))
+        sigma_followp.append(nx.sigma(G))
+    sigma_followp = np.array(sigma_followp)
+    gloef_followp = np.array(gloef_followp)   
+    locef_followp = np.array(locef_followp)   
     mods_followp = np.array(mods_followp)
+
+    ######### ses-followup-2 ###########
     for i in range(stroke_followup_2_adj.shape[-1]):
         G = nx.from_numpy_array(stroke_followup_2_adj[...,0])
         communities = nx.algorithms.community.louvain_communities(G)
         mods_followp_2.append(nx.algorithms.community.modularity(G, communities))
-    mods_followup_2 = np.array(mods_followp_2)
+        locef_followp_2.append(nx.local_efficiency(G))
+        gloef_followp_2.append(nx.global_efficiency(G))
+        sigma_followp_2.append(nx.sigma(G))
+    sigma_followp_2 = np.array(sigma_followp_2)
+    gloef_followp_2 = np.array(gloef_followp_2)
+    locef_followp_2 = np.array(locef_followp_2)
+    mods_followp_2 = np.array(mods_followp_2)
 
-    print(mods_acute, mods_followp, mods_followp_2)
-    # stroke_followup2_adj = create_tensor_from_multiple_adjacency_graphs(stroke_followup2_paths, 'stroke_followup2')
+    import matplotlib.pylab as plt 
+    plt.plot([mods_acute.mean(), mods_followp.mean()/mods_acute.mean(), mods_followp_2.mean()/mods_acute.mean()], 'o', label='modularity')
+    plt.plot([locef_acute.mean(), locef_followp.mean()/locef_acute.mean(), locef_followp_2.mean()/locef_acute.mean()], 'o', label='modularity')
+    plt.plot([gloef_acute.mean(), gloef_followp.mean()/gloef_acute.mean(), gloef_followp_2.mean()/gloef_acute.mean()], 'o', label='modularity')
+    plt.plot([sigma_acute.mean(), sigma_followp.mean()/sigma_acute.mean(), sigma_followp_2.mean()/sigma_acute.mean()], 'o', label='modularity')
+    plt.show()
 
-    """ procs = []
+    procs = []
 
     experiments = [[stroke_acute_adj, stroke_control_adj, 'stoke_acute vs stroke_control'],
                    [glioma_preop_adj, glioma_control_adj, 'glioma preop vs glioma control'],
@@ -91,5 +124,5 @@ if __name__ == '__main__':
 
     for p in procs:
         p.join()
-     """
+    
     # Access tests with the name of the test and filter the t-stat matrix at various levels

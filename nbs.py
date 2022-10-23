@@ -165,7 +165,6 @@ def nbs_bct(x, y, thresh, k=1000, tail='both', paired=False, verbose=False, seed
             t_stat[i] = ttest_paired_stat_only(xmat[i, :], ymat[i, :], tail)
         else:
             t_stat[i] = ttest2_stat_only(xmat[i, :], ymat[i, :], tail)
-    '''
     # threshold
     ind_t, = np.where(t_stat > thresh)
     if len(ind_t) == 0:
@@ -259,5 +258,5 @@ def nbs_bct(x, y, thresh, k=1000, tail='both', paired=False, verbose=False, seed
     # calculate p-vals
     for i in range(nr_components):
         pvals[i] = np.size(np.where(null >= sz_links[i])) / k
-    '''
-    return t_stat # pvals, adj, null, t_stat 
+
+    return pvals, adj, null

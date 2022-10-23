@@ -27,7 +27,7 @@ class Test(Thread):
         self.x = x
         self.y = y
         self.percentile = percentile
-        self.name = name
+        self.name = name.replace(' ', '_')
         self.threshold = self.load_threshold()
 
     def load_threshold(self):
@@ -40,7 +40,8 @@ class Test(Thread):
         p_val, adj_edges, comp = nbs_bct(
             self.x,
             self.y,
-            thresh=self.threshold
+            thresh=self.threshold,
+            verbose=True
         )
         lock.acquire()
         np.savez(f'./Results/{self.name}_{self.percentile}_percentile.npz',
@@ -184,11 +185,11 @@ if __name__ == '__main__':
     
     # Access tests with the name of the test and filter the t-stat matrix at various levels
 
-    for key in tests.keys():
-        triu_matrix = tests[key][0]
-        square_matrix = np.reshape(triu_matrix, (1, triu_matrix.shape[0])) + np.reshape(triu_matrix, (triu_matrix.shape[0], 1))
-        square_matrix = square_matrix.flatten()
-        prepare_histogram_based_on_t_statistics(square_matrix, key)
-        calculate_and_plot_percentiles(square_matrix, key)
+    # for key in tests.keys():
+    #     triu_matrix = tests[key][0]
+    #     square_matrix = np.reshape(triu_matrix, (1, triu_matrix.shape[0])) + np.reshape(triu_matrix, (triu_matrix.shape[0], 1))
+    #     square_matrix = square_matrix.flatten()
+    #     prepare_histogram_based_on_t_statistics(square_matrix, key)
+    #     calculate_and_plot_percentiles(square_matrix, key)
 
     # Access tests with the name of the test and filter the t-stat matrix at various levels
